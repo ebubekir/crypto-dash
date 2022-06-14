@@ -3,3 +3,4 @@ pandas
 dash-bootstrap-components
 dash_extensions
 dynaconf
+diskcache
