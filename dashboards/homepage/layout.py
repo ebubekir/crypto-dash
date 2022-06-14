@@ -23,7 +23,21 @@ layout = html.Div(
         ]),
         dbc.Row([
             components.Box([
-                "Box component test."
-            ])
+                dbc.Row([
+                    dbc.Col([
+                        html.Label("Select Pair"),
+                        dcc.Dropdown(
+                            id="homepage-pairs-options",
+                            options=get_list_pair_options(),
+                            value=945629
+                        )
+                    ], md=4)
+                ]),
+                dbc.Row([
+                    dcc.Loading(
+                        dcc.Graph(id="pair-historical-data-graph")
+                    )
+                ])
+            ], title="Historical Data")
         ], style={"marginTop": "20px"})
     ])

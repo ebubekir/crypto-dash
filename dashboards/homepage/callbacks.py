@@ -5,7 +5,8 @@ from components import indicator
 from core import app
 from core import cache
 
-from dash import Output
+from dash import Output, Input
+import plotly.graph_objects as go
 from dash_extensions.enrich import Trigger
 
 
@@ -36,3 +37,38 @@ def load_crypto_overview():
             ], className="flex")
         ]
     return response
+
+
+@app.callback(
+    Input("homepage-pairs-options", "value"),
+    Output("pair-historical-data-graph", "figure")
+)
+@cache.memoize(expire=3600)
+def get_historical_pair_graph(pair_id):
+    coin_service = CoinService()
+    df = coin_service.get_historical_data(pair_id=pair_id)
+    fig = go.Figure(
+        [
+            go.Scatter(x=df['date'],
+                       y=df['price'],
+                       name="Price",
+                       hovertemplate="Date: %{x} <br>Price: %{y} <br>Change: %{customdata}",
+                       customdata=df['perc_chg'],
+                       ),
+            go.Scatter(x=df['date'],
+                       y=df['low'],
+                       name="Low",
+                       hovertemplate="Date: %{x} <br>Price: %{y} <br>Change: %{customdata}",
+                       customdata=df['perc_chg']
+                       ),
+            go.Scatter(x=df['date'],
+                       y=df['high'],
+                       name="High",
+                       hovertemplate="Date: %{x} <br>Price: %{y} <br>Change: %{customdata}",
+                       customdata=df['perc_chg'],
+                       )
+        ]
+    )
+    fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", )
+
+    return fig

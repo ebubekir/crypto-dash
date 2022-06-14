@@ -1,5 +1,6 @@
+from datetime import datetime
+
 import pandas as pd
-from typing import List
 
 from .api_service import ApiService
 
@@ -26,3 +27,12 @@ class CoinService(ApiService):
                 value=pair_ID
             """
         )[['label', 'value']].to_dict('records')
+
+    def get_historical_data(self, pair_id: str) -> pd.DataFrame:
+        querystring = {"pair_ID": pair_id, "date_from": "20012020", "date_to": "19022020", "lang_ID": "1",
+                       "time_utc_offset": "28800", "interval": "day"}
+        response = self.get(url="coins/get-historical-data", params=querystring)
+        df = pd.DataFrame(response[0]['screen_data']['data'])
+        df['date'] = df['date'].apply(lambda x: datetime.fromtimestamp(x).strftime('%Y-%m-%d'))
+        df['price'] = df['price'].apply(lambda x: float(x.replace(',', '')))
+        return df
